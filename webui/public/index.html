@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0c0d0f">
+<title>Pi</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M14 6l4 4"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5M12 17h7"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3.2 2.8 14.8 0 18M12 3c-2.8 3.2-2.8 14.8 0 18"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0 5.2 5.2L11 20.4 3.6 13l8.7-8.7a4 4 0 0 0 2.2 2.2z"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 16l4-5 3 3 5-7 4 5"/><path d="M4 20h16"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r=".7" fill="currentColor"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.4"/><path d="M4 17l5-5 4 4 3-2 4 4"/></symbol>
+  <symbol id="i-at" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 5 2A9 9 0 1 0 18 20"/></symbol>
+  <symbol id="i-slash" viewBox="0 0 24 24"><path d="M15 4L9 20"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-command" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-diff" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M4 9h6M4 15h6M14 12h6"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4"/><path d="M11 11l9 9M17 17l2-2M14 14l2-2"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="console-top">
+    <div class="top-brand">
+      <span class="brand-mark" aria-hidden="true">PI</span>
+      <span id="project-name" class="brand-name">Pi</span>
+    </div>
+    <span id="top-session" class="top-session"></span>
+    <div class="top-actions">
+      <span id="conn-state" class="conn-state"><i aria-hidden="true"></i><span id="conn-label">connecting</span></span>
+      <button id="usage-ring" class="top-button usage-ring" type="button" title="Inspector" aria-label="Open inspector" aria-controls="inspector" aria-expanded="false">
+        <span id="usage-percent" class="usage-percent">—</span>
+        <svg class="icon"><use href="#i-panel"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="console-body">
+    <main class="main">
+      <span id="status-announcer" class="visually-hidden" role="status" aria-live="polite"></span>
+      <div id="retry-banner" class="retry-banner" role="status" hidden>
+        <svg class="icon"><use href="#i-refresh"/></svg>
+        <span id="retry-text"></span>
+      </div>
+
+      <div class="workspace">
+        <div id="scroll-area" class="scroll-area">
+          <div class="stream">
+            <div id="conversation" class="conversation" aria-label="Conversation"></div>
+            <div id="dialog-list" class="dialog-list"></div>
+            <div id="conversation-error" class="turn-error" role="alert" hidden>
+              <svg class="icon"><use href="#i-alert"/></svg>
+              <span id="conversation-error-text" class="turn-error-text"></span>
+              <button id="error-copy" class="turn-error-action" type="button" title="Copy error" aria-label="Copy error">
+                <svg class="icon"><use href="#i-copy"/></svg>
+              </button>
+              <button id="error-close" class="turn-error-action" type="button" title="Close" aria-label="Close error">
+                <svg class="icon"><use href="#i-x"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button id="scroll-bottom" class="scroll-bottom" type="button" hidden>
+          <svg class="icon"><use href="#i-arrow-down"/></svg><span>Back to bottom</span>
+        </button>
+        <button id="dialog-jump" class="dialog-jump" type="button" hidden>
+          <svg class="icon"><use href="#i-alert"/></svg><span>Confirmations pending</span>
+        </button>
+      </div>
+
+      <div class="composer-dock">
+        <div id="editing" class="editing-banner" hidden>
+          <svg class="icon"><use href="#i-pencil"/></svg>
+          <span>Editing an earlier message · sending replaces everything after it</span>
+          <button id="cancel-edit" type="button">Cancel</button>
+        </div>
+        <div id="queue" class="queue" hidden></div>
+        <form id="composer" class="composer" autocomplete="off">
+          <div id="completion" class="completion" hidden>
+            <div id="completion-list" class="completion-list" role="listbox"></div>
+          </div>
+          <div id="attachments" class="attachments"></div>
+          <div class="prompt-line">
+            <span class="prompt-mark" aria-hidden="true">❯</span>
+            <textarea id="input" rows="1" aria-label="Message input" placeholder="Send a message…"></textarea>
+            <div class="prompt-actions">
+              <div class="popover-anchor">
+                <button id="attach-button" class="prompt-button" type="button" title="Add images, files, or commands" aria-label="Add images, files, or commands" aria-haspopup="menu" aria-expanded="false">
+                  <svg class="icon"><use href="#i-plus"/></svg>
+                </button>
+                <div id="attach-menu" class="popover attach-menu" role="menu" hidden>
+                  <button type="button" data-insert="image"><svg class="icon"><use href="#i-image"/></svg><span>Image</span></button>
+                  <button type="button" data-insert="file"><svg class="icon"><use href="#i-at"/></svg><span>Reference file</span></button>
+                  <button type="button" data-insert="command"><svg class="icon"><use href="#i-slash"/></svg><span>Command</span></button>
+                </div>
+              </div>
+              <button id="stop" class="stop" type="button" hidden>
+                <svg class="icon"><use href="#i-stop"/></svg><span>Stop</span>
+              </button>
+              <button id="send" class="send" type="submit" aria-label="Send message">
+                <span id="send-label" class="visually-hidden">Send</span>
+                <svg class="icon"><use href="#i-send"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="prompt-meta">
+            <div class="prompt-hints">
+              <span>enter send</span>
+              <span>shift+enter newline</span>
+              <span>/ command</span>
+              <span>@ file</span>
+            </div>
+            <div class="popover-anchor">
+              <button id="model-button" class="model-chip" type="button" aria-haspopup="dialog" aria-expanded="false">
+                <span id="model-name" class="model-chip-name">Model</span>
+                <span id="model-chip-sep" class="model-chip-sep" aria-hidden="true">·</span>
+                <span id="thinking-name" class="model-chip-level">Thinking</span>
+                <svg class="icon chevron"><use href="#i-chevron-down"/></svg>
+              </button>
+              <div id="model-menu" class="popover model-panel" role="dialog" aria-label="Model and thinking" hidden>
+                <div class="model-panel-head">
+                  <span>Model</span>
+                  <span id="model-panel-count" class="panel-count"></span>
+                </div>
+                <label class="panel-search">
+                  <svg class="icon"><use href="#i-search"/></svg>
+                  <input id="model-search" type="search" placeholder="Search models" aria-label="Search models">
+                </label>
+                <div id="model-list" class="model-list" role="listbox" aria-label="Models"></div>
+                <div id="thinking-section" class="thinking-section">
+                  <div class="model-panel-head"><span>Thinking level</span><span id="thinking-value" class="panel-count"></span></div>
+                  <div id="thinking-levels" class="thinking-levels" role="group" aria-label="Thinking level"></div>
+                </div>
+                <p id="model-lock" class="panel-note" hidden>Cannot change while a task is running</p>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div id="resume" class="resume" hidden>
+          <div class="resume-panel" role="dialog" aria-label="Switch session">
+            <header class="resume-head">
+              <span>Switch session</span>
+              <button id="resume-close" class="icon-button" type="button" aria-label="Close session switcher">
+                <svg class="icon"><use href="#i-x"/></svg>
+              </button>
+            </header>
+            <label class="resume-search">
+              <svg class="icon"><use href="#i-search"/></svg>
+              <input id="resume-search" type="search" placeholder="Search sessions" aria-label="Search sessions" autocomplete="off">
+            </label>
+            <div id="resume-error" class="resume-error" hidden></div>
+            <div id="resume-list" class="resume-list" role="listbox" aria-label="Session history"></div>
+          </div>
+        </div>
+        <input id="image-input" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple tabindex="-1" aria-hidden="true">
+      </div>
+    </main>
+
+    <aside id="inspector" class="inspector" aria-label="Inspector">
+      <header class="inspector-head">
+        <div class="inspector-session">
+          <span class="panel-kicker">SESSION</span>
+          <h1 id="session-title" class="session-title"></h1>
+          <span id="session-project" class="session-project"></span>
+        </div>
+        <div class="inspector-actions">
+          <button id="theme-toggle" class="icon-button" type="button" title="Theme" aria-label="Switch theme">
+            <svg class="icon"><use href="#i-moon"/></svg>
+          </button>
+          <button id="inspector-close" class="icon-button" type="button" title="Hide inspector" aria-label="Hide inspector">
+            <svg class="icon"><use href="#i-x"/></svg>
+          </button>
+        </div>
+      </header>
+      <div class="inspector-body">
+        <section id="inspector-dialogs" class="inspect-section" hidden>
+          <h3>DIALOG</h3>
+          <div id="inspector-dialog-list"></div>
+        </section>
+        <section class="inspect-section">
+          <h3>STATUS</h3>
+          <div class="stat-row">
+            <span>run</span>
+            <div id="status-pill" class="status-pill is-idle">
+              <span class="status-shape" aria-hidden="true"></span>
+              <span id="status-label" class="status-label">Connecting</span>
+            </div>
+          </div>
+          <div class="stat-row"><span>queue</span><b id="stat-queue">0</b></div>
+          <div class="stat-row"><span>dialog</span><b id="stat-dialog">0</b></div>
+        </section>
+        <section class="inspect-section">
+          <h3>MODEL</h3>
+          <div class="stat-row"><span>model</span><b id="panel-model">—</b></div>
+          <div class="stat-row"><span>thinking</span><b id="panel-thinking">—</b></div>
+        </section>
+        <section class="inspect-section">
+          <h3>CONTEXT</h3>
+          <div id="inspector-usage"></div>
+        </section>
+        <section class="inspect-section">
+          <h3>CHANGED</h3>
+          <div id="inspector-changes"></div>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="console-foot">
+    <span class="foot-hint">ctrl K command</span>
+    <span class="foot-hint">esc close</span>
+    <span class="foot-right"><i aria-hidden="true"></i><span id="foot-status">local</span></span>
+  </footer>
+</div>
+
+<div id="inspector-backdrop" class="backdrop" hidden></div>
+
+<div id="palette" class="palette" hidden>
+  <div class="palette-panel" role="dialog" aria-modal="true" aria-label="Command palette">
+    <label class="palette-search">
+      <svg class="icon"><use href="#i-command"/></svg>
+      <input id="palette-input" type="text" placeholder="Switch sessions, models, or run actions" aria-label="Command palette">
+      <kbd>Esc</kbd>
+    </label>
+    <div id="palette-list" class="palette-list" role="listbox"></div>
+  </div>
+</div>
+
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+
+<div id="link-menu" class="popover attach-menu link-menu" role="menu" aria-label="Open options" hidden>
+  <button type="button" data-link-action="default">
+    <svg class="icon"><use href="#i-file"/></svg><span>Open in default app</span>
+  </button>
+  <button type="button" data-link-action="folder">
+    <svg class="icon"><use href="#i-folder"/></svg><span>Show in folder</span>
+  </button>
+</div>
+
+<dialog id="image-viewer" class="viewer">
+  <button class="viewer-close icon-button" type="button" aria-label="Close image">
+    <svg class="icon"><use href="#i-x"/></svg>
+  </button>
+  <img alt="Image preview">
+</dialog>
+
+<dialog id="diff-dialog" class="diff-dialog">
+  <header class="diff-dialog-head">
+    <h2 id="diff-title">Diff</h2>
+    <button class="dialog-close icon-button" type="button" aria-label="Close">
+      <svg class="icon"><use href="#i-x"/></svg>
+    </button>
+  </header>
+  <div id="diff-body" class="diff-dialog-body"></div>
+</dialog>
+
+<script src="/marked.js"></script>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

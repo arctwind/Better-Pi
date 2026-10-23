@@ -1,0 +1,16 @@
+{
+  "name": "pi-better-pi-extensions",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --import ./tests/runtime.mjs scripts/check.mjs",
+    "test": "node --test --import ./tests/runtime.mjs tests/*.test.mjs webui/test/*.test.mjs",
+    "test:standalone": "node --test --test-timeout=30000 --import ./tests/runtime.mjs tests/launcher.test.mjs tests/output.test.mjs webui/test/*.test.mjs"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}
