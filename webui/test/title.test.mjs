@@ -8,6 +8,8 @@ test("uses the first sentence and strips a leading request", () => {
     "切换会话后，未发送的草稿有时会丢",
   );
   assert.equal(autoSessionTitle("请修复登录页的 bug\n\n复现步骤：打开页面"), "修复登录页的 bug");
+  assert.equal(autoSessionTitle("Please help me fix the login bug"), "fix the login bug");
+  assert.equal(autoSessionTitle("Hey, could you update the docs?"), "update the docs");
 });
 
 test("ignores greetings, commands and empty input", () => {
