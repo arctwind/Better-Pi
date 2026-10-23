@@ -20,7 +20,7 @@ await checkSyntax(new URL("../", import.meta.url));
 const tools = new Map();
 const commands = new Map();
 const providers = new Map();
-betterPi({
+await betterPi({
 	on() {},
 	registerTool(tool) { assert.ok(!tools.has(tool.name), `Duplicate tool: ${tool.name}`); tools.set(tool.name, tool); },
 	registerCommand(name, command) { commands.set(name, command); },

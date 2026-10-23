@@ -4,6 +4,8 @@ Better Pi adds tool output formatting, image attachments, browsing, and a local 
 
 > Recommended for use with **Pi 0.87.1**.
 
+Newer Pi versions may change APIs that Better Pi components depend on, causing a module to fail to load. Better Pi then refuses to start instead of running partially, and Pi shows the failing module with the error details. Send the complete error message to an AI agent to help fix the compatibility issue.
+
 ## Features
 
 - Compact tool output and footer stats for context usage, cache hits, generation speed, and session cost (`/currency` switches between USD and CNY)
