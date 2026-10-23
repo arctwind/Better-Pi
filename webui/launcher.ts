@@ -2,15 +2,21 @@ import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { rethrowAfterCleanup } from "../lib/errors.js";
 
 const { resolveManagedPiCliPath }: { resolveManagedPiCliPath(installRoot: string): string | undefined } = createRequire(import.meta.url)("./pi-launcher.cjs");
 const LAUNCHER_MARKER = "// Better Pi launcher";
 const LEGACY_LAUNCHER_SHA256 = "c82defd8292be6c7c5c54d2cf8ce519333551cbaf72c04f21b0c301557732305";
+export const WEBUI_ENTRY_PLACEHOLDER = '"__BETTER_PI_WEBUI_ENTRY__"';
 
 export async function syncLauncher(agentDir: string): Promise<void> {
 	if (!resolveManagedPiCliPath(join(agentDir, "install"))) return;
-	const source = await readFile(new URL("./pi-launcher.cjs", import.meta.url), "utf8");
+	const template = await readFile(new URL("./pi-launcher.cjs", import.meta.url), "utf8");
+	if (template.split(WEBUI_ENTRY_PLACEHOLDER).length !== 2) {
+		throw new Error("Invalid Better Pi launcher template: expected exactly one WebUI entry placeholder.");
+	}
+	const source = template.replace(WEBUI_ENTRY_PLACEHOLDER, () => JSON.stringify(fileURLToPath(new URL("./start.mjs", import.meta.url))));
 	const directory = join(agentDir, "bin");
 	const target = join(directory, "pi-launcher.js");
 	let current: string | undefined;

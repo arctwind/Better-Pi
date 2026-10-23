@@ -5,6 +5,7 @@ const { spawnSync } = require("node:child_process");
 
 const packageName = "@earendil-works/pi-coding-agent";
 const commandName = "pi";
+const webuiEntryPath = "__BETTER_PI_WEBUI_ENTRY__";
 function resolveManagedPiCliPath(installRoot) {
 	const currentFile = path.join(installRoot, "current-version");
 	let currentVersion;
@@ -43,7 +44,15 @@ if (require.main === module) {
 	if (!cliPath) throw new Error(`Managed Pi version file is missing: ${path.join(installRoot, "current-version")}`);
 	const args = process.argv.slice(2);
 	const isWebUI = args.includes("--webui");
-	const entryPath = isWebUI ? path.join(agentDir, "extensions", "Better Pi", "webui", "start.mjs") : cliPath;
+	const entryPath = isWebUI ? webuiEntryPath : cliPath;
+	if (isWebUI) {
+		let isEntryFile = false;
+		try { isEntryFile = fs.statSync(entryPath).isFile(); }
+		catch (error) { if (error.code !== "ENOENT" && error.code !== "ENOTDIR") throw error; }
+		if (!isEntryFile) {
+			throw new Error(`WebUI entry is missing or not a file: ${entryPath}\nStart Pi without --webui or run /reload in Pi to update the launcher.`);
+		}
+	}
 	const entryArgs = isWebUI ? [cliPath, ...args.filter((arg) => arg !== "--webui")] : args;
 	const result = spawnSync(process.execPath, [entryPath, ...entryArgs], {
 		stdio: "inherit",

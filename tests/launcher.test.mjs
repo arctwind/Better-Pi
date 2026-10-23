@@ -1,14 +1,23 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, readdir, rm, stat, utimes, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, utimes, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import test, { after, before } from "node:test";
-import { syncLauncher } from "../webui/launcher.ts";
+import { syncLauncher, WEBUI_ENTRY_PLACEHOLDER } from "../webui/launcher.ts";
 
 const directory = fileURLToPath(new URL("./", import.meta.url));
 const source = new URL("../webui/pi-launcher.cjs", import.meta.url);
+const webuiEntryPath = fileURLToPath(new URL("../webui/start.mjs", import.meta.url));
 let root;
+
+async function readLauncherSource() {
+	const template = await readFile(source, "utf8");
+	const [before, after, ...extra] = template.split(WEBUI_ENTRY_PLACEHOLDER);
+	assert.notEqual(after, undefined);
+	assert.equal(extra.length, 0);
+	return before + JSON.stringify(webuiEntryPath) + after;
+}
 
 before(async () => {
 	root = await mkdtemp(join(directory, ".tmp-launcher-"));
@@ -29,10 +38,22 @@ async function createManagedInstall(agent, version = "1.0.0") {
 	return pkg;
 }
 
+async function createExtension(extension) {
+	const webui = join(extension, "webui");
+	await mkdir(webui, { recursive: true });
+	await mkdir(join(extension, "lib"));
+	await copyFile(new URL("../package.json", import.meta.url), join(extension, "package.json"));
+	await copyFile(source, join(webui, "pi-launcher.cjs"));
+	await copyFile(new URL("../webui/launcher.ts", import.meta.url), join(webui, "launcher.ts"));
+	await copyFile(new URL("../lib/errors.ts", import.meta.url), join(extension, "lib", "errors.ts"));
+	await writeFile(join(webui, "start.mjs"), "console.log(JSON.stringify({ entry: import.meta.url, args: process.argv.slice(2) }));");
+	return import(pathToFileURL(join(webui, "launcher.ts")).href);
+}
+
 test("managed installations create and update owned launchers without rewriting identical content", async () => {
 	await createManagedInstall(root);
 	const target = join(root, "bin", "pi-launcher.js");
-	const expected = await readFile(source, "utf8");
+	const expected = await readLauncherSource();
 	await syncLauncher(root);
 	assert.equal(await readFile(target, "utf8"), expected);
 	await writeFile(target, "// Better Pi launcher\n// outdated launcher\n");
@@ -77,7 +98,7 @@ test("the known legacy launcher upgrades with either line ending but local edits
 	for (const content of [legacy, legacy.replace(/\n/g, "\r\n")]) {
 		await writeFile(target, content);
 		await syncLauncher(agent);
-		assert.equal(await readFile(target, "utf8"), await readFile(source, "utf8"));
+		assert.equal(await readFile(target, "utf8"), await readLauncherSource());
 	}
 	const edited = `${legacy}\n// local customization\n`;
 	await writeFile(target, edited);
@@ -117,19 +138,47 @@ test("launcher filesystem errors are propagated without replacing the target", a
 	assert.deepEqual(await readdir(join(agent, "bin")), ["pi-launcher.js"]);
 });
 
-test("installed launcher follows the selected Pi version and routes WebUI arguments", async () => {
+test("invalid launcher placeholders fail before creating or replacing a launcher", async (t) => {
+	const template = await readFile(source, "utf8");
+	for (const [variant, content] of [
+		["missing", template.replace(WEBUI_ENTRY_PLACEHOLDER, "null")],
+		["renamed", template.replace(WEBUI_ENTRY_PLACEHOLDER, '"__RENAMED_ENTRY__"')],
+		["single-quoted", template.replace(WEBUI_ENTRY_PLACEHOLDER, "'__BETTER_PI_WEBUI_ENTRY__'")],
+		["duplicate", template + `\nvoid ${WEBUI_ENTRY_PLACEHOLDER};\n`],
+	]) {
+		await t.test(variant, async () => {
+			const agent = join(root, `placeholder-${variant}`);
+			await createManagedInstall(agent);
+			const extension = join(agent, "extension");
+			const { syncLauncher: syncInstalledLauncher } = await createExtension(extension);
+			await writeFile(join(extension, "webui", "pi-launcher.cjs"), content);
+			await assert.rejects(syncInstalledLauncher(agent), /expected exactly one WebUI entry placeholder/);
+			await assert.rejects(stat(join(agent, "bin")), { code: "ENOENT" });
+			await mkdir(join(agent, "bin"));
+			const target = join(agent, "bin", "pi-launcher.js");
+			const current = "// Better Pi launcher\n// installed version\n";
+			await writeFile(target, current);
+			await assert.rejects(syncInstalledLauncher(agent), /expected exactly one WebUI entry placeholder/);
+			assert.equal(await readFile(target, "utf8"), current);
+			assert.deepEqual(await readdir(join(agent, "bin")), ["pi-launcher.js"]);
+		});
+	}
+});
+
+test("installed launcher follows the selected Pi version and routes WebUI arguments", async (t) => {
 	const agent = join(root, "managed install");
 	await createManagedInstall(agent);
 	await createManagedInstall(agent, "2.0.0");
 	await syncLauncher(agent);
 	await writeFile(join(agent, "package.json"), JSON.stringify({ type: "commonjs" }));
 	const install = join(agent, "install");
-	const webui = join(agent, "extensions", "Better Pi", "webui");
-	await mkdir(webui, { recursive: true });
-	await writeFile(join(webui, "start.mjs"), "console.log(JSON.stringify({ args: process.argv.slice(2) }));");
-	function run(args) {
+	function launch(args) {
 		const result = spawnSync(process.execPath, [join(agent, "bin", "pi-launcher.js"), ...args], { encoding: "utf8", timeout: 10_000, windowsHide: true });
 		assert.ifError(result.error);
+		return result;
+	}
+	function run(args) {
+		const result = launch(args);
 		assert.equal(result.status, 0, result.stderr);
 		return JSON.parse(result.stdout);
 	}
@@ -137,7 +186,32 @@ test("installed launcher follows the selected Pi version and routes WebUI argume
 		await writeFile(join(install, "current-version"), version);
 		assert.deepEqual(run(["--version"]), { version, args: ["--version"], install });
 	}
-	const routed = run(["--webui", "--session", "path with spaces"]);
-	assert.equal(routed.args[0], join(install, "releases", "2.0.0", "node_modules", "@earendil-works", "pi-coding-agent", "cli.cjs"));
-	assert.deepEqual(routed.args.slice(1), ["--session", "path with spaces"]);
+	for (const [layout, extension] of [
+		["manual", join(agent, "extensions", "Better Pi")],
+		["git", join(agent, "git", "github.com", "user's fork", "Better-Pi")],
+		...["$&", "$'", "$`", "$$", "$1"].map((segment) => [segment, join(agent, "git", "github.com", segment, "Better-Pi")]),
+	]) {
+		await t.test(layout, async () => {
+			const webui = join(extension, "webui");
+			const { syncLauncher: syncInstalledLauncher } = await createExtension(extension);
+			await syncInstalledLauncher(agent);
+			const routed = run(["--webui", "--session", "path with spaces"]);
+			assert.equal(routed.entry, pathToFileURL(join(webui, "start.mjs")).href);
+			assert.equal(routed.args[0], join(install, "releases", "2.0.0", "node_modules", "@earendil-works", "pi-coding-agent", "cli.cjs"));
+			assert.deepEqual(routed.args.slice(1), ["--session", "path with spaces"]);
+			if (layout === "git") {
+				const moved = extension + " moved";
+				await rename(extension, moved);
+				const failed = launch(["--webui"]);
+				assert.equal(failed.status, 1);
+				assert.ok(failed.stderr.includes(join(webui, "start.mjs")));
+				assert.match(failed.stderr, /WebUI entry is missing or not a file/);
+				assert.match(failed.stderr, /Start Pi without --webui or run \/reload/);
+				assert.equal(run(["--version"]).version, "2.0.0");
+				const { syncLauncher: syncMovedLauncher } = await import(pathToFileURL(join(moved, "webui", "launcher.ts")).href);
+				await syncMovedLauncher(agent);
+				assert.equal(run(["--webui"]).entry, pathToFileURL(join(moved, "webui", "start.mjs")).href);
+			}
+		});
+	}
 });
