@@ -2,6 +2,8 @@
 
 Better Pi adds tool output formatting, image attachments, browsing, and a local WebUI to Pi.
 
+Fork the repository and adapt it to your own habits. Suggestions are welcome as issues. Pull requests are not accepted.
+
 > Recommended for use with **Pi 0.87.1**.
 
 Newer Pi versions may change APIs that Better Pi components depend on, causing a module to fail to load. Better Pi then refuses to start instead of running partially, and Pi shows the failing module with the error details. Send the complete error message to an AI agent to help fix the compatibility issue.
