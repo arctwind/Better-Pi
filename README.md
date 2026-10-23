@@ -15,6 +15,12 @@ Newer Pi versions may change APIs that Better Pi components depend on, causing a
 - Web search and page fetching through DeepSeek
 - A local [WebUI](webui/README.md) for chat, session management, and file diffs
 
+## Web search
+
+Web search and page fetching call DeepSeek's web tools API, so they only work when DeepSeek is available to Pi: sign in with `/login`, or set `DEEPSEEK_API_KEY`.
+
+Other providers are not built in. Don't expect Better Pi to support them all; using one, such as Exa, means changing the request code in [web.ts](web.ts) yourself.
+
 ## Default behavior
 
 Better Pi replaces Pi's system, style, and commit-convention prompt sections with the files in [system-prompt/](system-prompt/). The optional [boundaries prompt](system-prompt/boundaries.md) is disabled by default; `/jailbreak` toggles it.
