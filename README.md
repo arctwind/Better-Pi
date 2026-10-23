@@ -2,11 +2,9 @@
 
 Better Pi adds tool output formatting, image attachments, browsing, and a local WebUI to Pi.
 
-Fork the repository and adapt it to your own habits. Suggestions are welcome as issues. Pull requests are not accepted.
+> Built for **Pi 0.87.1**. Other Pi versions need code fixes; see [Installation](#installation).
 
-> Recommended for use with **Pi 0.87.1**.
-
-Newer Pi versions may change APIs that Better Pi components depend on, causing a module to fail to load. Better Pi then refuses to start instead of running partially, and Pi shows the failing module with the error details. Send the complete error message to an AI agent to help fix the compatibility issue.
+Suggestions are welcome as issues. Pull requests are not accepted.
 
 ## Features
 
@@ -31,13 +29,37 @@ It also skips startup version checks, excludes past thinking from compaction sum
 
 ## Installation
 
-### Manual installation
+Better Pi targets Pi 0.87.1. On another Pi version modules can fail to load: Better Pi refuses to start and Pi reports the failing module. The fix is code, and `pi update --extensions` wipes code fixes from a git install.
 
-Download the plugin package from [GitHub](https://github.com/arctwind/Better-Pi) and extract it into `~/.pi/agent/extensions/Better Pi` (on Windows, `%USERPROFILE%\.pi\agent\extensions\Better Pi`).
+Pick one method. Two copies load Better Pi twice and duplicate its tools, so to switch, delete `~/.pi/agent/extensions/Better Pi` or run `pi remove git:github.com/arctwind/Better-Pi`. After installing, start Pi or run `/reload`; `pi config` enables or disables Better Pi, and `pi list` shows installed packages.
 
-Make sure `index.ts` and `package.json` sit directly inside `Better Pi`. Start Pi or run `/reload`. If needed, enable Better Pi through `pi config`.
+WebUI startup requires Pi's managed installation layout. See the [WebUI guide](webui/README.md#start).
 
-WebUI startup requires Pi's managed installation layout. See the [WebUI guide](webui/README.md#start) for launcher requirements and behavior.
+### Your own fork (recommended)
+
+Fork the repository, adapt it, and install the fork. Your changes and your update timing stay under your control.
+
+```bash
+pi install git:github.com/<you>/Better-Pi@v0.1.0
+```
+
+When upstream changes, ask an AI agent to review the new commits before adding them to your fork.
+
+### Upstream repository
+
+```bash
+pi install git:github.com/arctwind/Better-Pi@v0.1.0
+```
+
+On a Pi version other than 0.87.1, fix the code first, then leave `pi update --extensions` alone: it resets the installed copy and drops the fix.
+
+### Manual copy (offline)
+
+Download the archive from [GitHub](https://github.com/arctwind/Better-Pi) and extract it into `~/.pi/agent/extensions/Better Pi` (Windows: `%USERPROFILE%\.pi\agent\extensions\Better Pi`). `index.ts` and `package.json` must sit directly inside `Better Pi`.
+
+### Updates
+
+`pi update --extensions` follows the default branch for an install without a ref. A tag or a full commit hash stays fixed. Short commit hashes break the update.
 
 ### Install with an AI agent
 
