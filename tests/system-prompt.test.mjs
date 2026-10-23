@@ -78,7 +78,10 @@ test("footer centers J at every width and preserves other extension statuses", (
 	const handlers = new Map();
 	const statuses = new Map([["other", "other status"]]);
 	let component;
-	footer({ on(name, handler) { handlers.set(name, handler); } });
+	footer({
+		on(name, handler) { handlers.set(name, handler); },
+		registerCommand() {},
+	});
 	const ctx = {
 		mode: "tui",
 		isProjectTrusted: () => false,
