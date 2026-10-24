@@ -27,14 +27,14 @@ test("saved settings apply on reload, restore process patches, and retain manage
   });
   const wheel = TuiAltScreen.prototype.getWheelScrollLines;
   const display = ToolExecutionComponent.prototype.updateDisplay;
-  const { loadExtensions, clearExtensionCache } = await import(pathToFileURL(join(getPackageDir(), "dist/core/extensions/loader.js")).href);
+  const { loadExtensionsCached, clearExtensionCache } = await import(pathToFileURL(join(getPackageDir(), "dist/core/extensions/loader.js")).href);
   let active;
   async function shutdown(reason) {
     for (const handler of active?.handlers.get("session_shutdown") ?? []) await handler({ type: "session_shutdown", reason });
   }
-  async function load() {
-    clearExtensionCache();
-    const result = await loadExtensions([fileURLToPath(new URL("../index.ts", import.meta.url))], root);
+  async function load(isReload = true) {
+    if (isReload) clearExtensionCache();
+    const result = await loadExtensionsCached([fileURLToPath(new URL("../index.ts", import.meta.url))], root);
     assert.deepEqual(result.errors, []);
     active = result.extensions[0];
     return active;
@@ -45,11 +45,19 @@ test("saved settings apply on reload, restore process patches, and retain manage
   assert.notEqual(TuiAltScreen.prototype.getWheelScrollLines, wheel);
   assert.notEqual(ToolExecutionComponent.prototype.updateDisplay, display);
   assert.equal(process.env.PI_SKIP_VERSION_CHECK, "1");
+  for (const reason of ["new", "resume", "fork"]) {
+    await shutdown(reason);
+    assert.equal(process.env.PI_SKIP_VERSION_CHECK, "original");
+    assert.equal(TuiAltScreen.prototype.getWheelScrollLines, wheel);
+    assert.equal(ToolExecutionComponent.prototype.updateDisplay, display);
+    const replacement = await load(false);
+    assert.deepEqual([...replacement.tools.keys()], [...enabled.tools.keys()]);
+    assert.equal(process.env.PI_SKIP_VERSION_CHECK, "1");
+    assert.notEqual(TuiAltScreen.prototype.getWheelScrollLines, wheel);
+    assert.notEqual(ToolExecutionComponent.prototype.updateDisplay, display);
+  }
   await savePluginSettings(root, { disabled: PLUGINS.map(({ path }) => path) });
   assert.ok(enabled.tools.has("web"));
-  await shutdown("new");
-  assert.equal(process.env.PI_SKIP_VERSION_CHECK, "1");
-  assert.notEqual(TuiAltScreen.prototype.getWheelScrollLines, wheel);
   await shutdown("reload");
   assert.equal(process.env.PI_SKIP_VERSION_CHECK, "original");
   assert.equal(TuiAltScreen.prototype.getWheelScrollLines, wheel);
@@ -66,28 +74,29 @@ test("saved settings apply on reload, restore process patches, and retain manage
   assert.ok(restored.commands.has("jailbreak"));
 });
 
-test("manager reports browser failures, reuses its server, and closes it on shutdown", { timeout: 10_000 }, async () => {
-  const commands = new Map();
-  const handlers = new Map();
-  const notifications = [];
-  const launches = [];
-  pluginManager({
-    registerCommand(name, command) { commands.set(name, command); },
-    on(name, handler) { handlers.set(name, handler); },
-    async exec(command, args) { launches.push({ command, args }); return { code: 1, stderr: "browser unavailable", killed: false }; },
+for (const reason of ["new", "resume", "fork", "reload", "quit"]) {
+  test(`manager reports browser failures, reuses its server, and closes it on ${reason}`, { timeout: 10_000 }, async () => {
+    const commands = new Map();
+    const handlers = new Map();
+    const notifications = [];
+    const launches = [];
+    pluginManager({
+      registerCommand(name, command) { commands.set(name, command); },
+      on(name, handler) { handlers.set(name, handler); },
+      async exec(command, args) { launches.push({ command, args }); return { code: 1, stderr: "browser unavailable", killed: false }; },
+    });
+    const ctx = { ui: { notify(message, type) { notifications.push({ message, type }); } } };
+    try {
+      await commands.get("plugins").handler("", ctx);
+      await commands.get("plugins").handler("", ctx);
+      assert.equal(launches.length, 2);
+      const links = notifications.filter(({ type }) => type === "info").map(({ message }) => message.match(/http:\/\/\S+/)[0]);
+      assert.equal(links.length, 2);
+      assert.equal(links[0], links[1]);
+      assert.equal(notifications.filter(({ type, message }) => type === "error" && message.includes("browser unavailable")).length, 2);
+      assert.equal((await fetch(links[0])).status, 200);
+      await handlers.get("session_shutdown")({ reason });
+      await assert.rejects(fetch(links[0]));
+    } finally { await handlers.get("session_shutdown")({ reason: "quit" }); }
   });
-  const ctx = { ui: { notify(message, type) { notifications.push({ message, type }); } } };
-  try {
-    await commands.get("plugins").handler("", ctx);
-    await commands.get("plugins").handler("", ctx);
-    assert.equal(launches.length, 2);
-    const links = notifications.filter(({ type }) => type === "info").map(({ message }) => message.match(/http:\/\/\S+/)[0]);
-    assert.equal(links.length, 2);
-    assert.equal(links[0], links[1]);
-    assert.equal(notifications.filter(({ type, message }) => type === "error" && message.includes("browser unavailable")).length, 2);
-    await handlers.get("session_shutdown")({ reason: "new" });
-    assert.equal((await fetch(links[0])).status, 200);
-    await handlers.get("session_shutdown")({ reason: "quit" });
-    await assert.rejects(fetch(links[0]));
-  } finally { await handlers.get("session_shutdown")({ reason: "quit" }); }
-});
+}

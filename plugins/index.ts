@@ -31,8 +31,7 @@ export default function pluginManager(pi: ExtensionAPI): void {
 			handler: async (_args, ctx) => { await ctx.reload(); },
 		});
 	}
-	pi.on("session_shutdown", async ({ reason }) => {
-		if (reason !== "reload" && reason !== "quit") return;
+	pi.on("session_shutdown", async () => {
 		const running = server;
 		server = undefined;
 		if (running) await (await running).close();

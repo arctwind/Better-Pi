@@ -14,8 +14,7 @@ export default function (pi: ExtensionAPI) {
 	const getWheelScrollLines = (button: number) =>
 		(button & ALT_MODIFIER_BIT) !== 0 ? ALT_WHEEL_LINES : FAST_WHEEL_LINES;
 	proto.getWheelScrollLines = getWheelScrollLines;
-	pi.on("session_shutdown", ({ reason }) => {
-		if (reason !== "reload" && reason !== "quit") return;
+	pi.on("session_shutdown", () => {
 		if (proto.getWheelScrollLines === getWheelScrollLines) proto.getWheelScrollLines = previous;
 	});
 }

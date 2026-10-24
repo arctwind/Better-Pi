@@ -41,8 +41,7 @@ function hideResultImages(pi: ExtensionAPI): void {
 	};
 	prototype.updateDisplay = updateDisplay;
 	state.isInstalled = true;
-	pi.on("session_shutdown", ({ reason }) => {
-		if (reason !== "reload" && reason !== "quit") return;
+	pi.on("session_shutdown", () => {
 		if (prototype.updateDisplay === updateDisplay) prototype.updateDisplay = state.updateDisplay;
 		state.isInstalled = false;
 	});
