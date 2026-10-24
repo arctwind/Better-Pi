@@ -2100,6 +2100,7 @@ function paletteEntries() {
     { id: "new", label: "New conversation", hint: "Action", icon: "plus", run: () => void runChange({ type: "new_session" }) },
     { id: "compact", label: "Compact context", hint: "Action", icon: "tool", run: () => void runChange({ type: "compact" }) },
     { id: "reload", label: "Reload WebUI", hint: "Action", icon: "refresh", run: () => void runChange({ type: "reload" }) },
+    { id: "plugins", label: "Plugin settings", hint: "Open settings", icon: "tool", run: () => window.open("/plugins", "_blank", "noopener") },
     { id: "theme", label: `Theme: ${themeMode === "light" ? "light" : "dark"}`, hint: "Switch theme", icon: themeMode === "light" ? "sun" : "moon", run: cycleTheme },
     { id: "inspector", label: isInspectorOpen ? "Hide inspector" : "Show inspector", hint: "Layout", icon: "panel", run: toggleInspector },
   ];

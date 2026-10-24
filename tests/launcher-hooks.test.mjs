@@ -69,6 +69,6 @@ test("WebUI mode registers its hooks alongside launcher maintenance", () => {
 	try {
 		const { handlers, commands } = createExtension();
 		for (const name of ["session_start", "tool_call", "tool_result", "session_switch", "input"]) assert.ok(handlers.has(name));
-		assert.ok(commands.has("webui-reload"));
+		assert.equal(commands.size, 0);
 	} finally { delete process.env.PI_WEBUI; }
 });

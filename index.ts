@@ -1,7 +1,11 @@
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { getAgentDir, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { loadModules } from "./lib/modules.js";
+import pluginManager from "./plugins/index.js";
+import { readPluginSettings } from "./plugins/settings.mjs";
 
 export default async function betterPi(pi: ExtensionAPI): Promise<void> {
+	const { disabled } = await readPluginSettings(getAgentDir());
+	pluginManager(pi);
 	await loadModules(pi, [
 		{ path: "compact/index.ts", load: () => import("./compact/index.js") },
 		{ path: "deepseek-files.ts", load: () => import("./deepseek-files.js") },
@@ -16,5 +20,5 @@ export default async function betterPi(pi: ExtensionAPI): Promise<void> {
 		{ path: "web.ts", load: () => import("./web.js") },
 		{ path: "webui/index.ts", load: () => import("./webui/index.js") },
 		{ path: "wheel-invert.ts", load: () => import("./wheel-invert.js") },
-	]);
+	], new Set(disabled));
 }

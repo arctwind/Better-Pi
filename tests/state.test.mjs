@@ -44,9 +44,9 @@ function extensionHarness() {
 
 test("compact installation is idempotent and restores image visibility after rendering errors", () => {
 	const tools = [];
-	registerCompactTool({ registerTool(tool) { tools.push(tool); } }, { name: "one" });
+	registerCompactTool({ on() {}, registerTool(tool) { tools.push(tool); } }, { name: "one" });
 	const installed = ToolExecutionComponent.prototype.updateDisplay;
-	registerCompactTool({ registerTool(tool) { tools.push(tool); } }, { name: "two" });
+	registerCompactTool({ on() {}, registerTool(tool) { tools.push(tool); } }, { name: "two" });
 	assert.equal(ToolExecutionComponent.prototype.updateDisplay, installed);
 	const state = ToolExecutionComponent.prototype[Symbol.for("better-pi.compact-tools")];
 	const original = state.updateDisplay;

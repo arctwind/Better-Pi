@@ -1,8 +1,9 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
-import { randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { PLUGINS, readPluginSettings, savePluginSettings } from "../plugins/settings.mjs";
 
 const MAX_BODY_BYTES = 112 * 1024 * 1024;
 const HEARTBEAT_MS = 15_000;
@@ -32,7 +33,13 @@ function isSameToken(value, token) {
   return bytes.length === expected.length && timingSafeEqual(bytes, expected);
 }
 
-export async function startServer(session, { markedPath } = {}) {
+export async function startServer(session, { markedPath, agentDir } = {}) {
+  if (!session && !agentDir) throw new Error("Plugin settings require a Pi agent directory");
+  const pluginPage = agentDir ? await readFile(new URL("../plugins/index.html", import.meta.url), "utf8") : undefined;
+  const pluginPolicy = pluginPage && ["script", "style"].map((tag) => {
+    const content = pluginPage.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`))[1];
+    return `${tag}-src 'sha256-${createHash("sha256").update(content.replace(/\r\n?/g, "\n")).digest("base64")}'`;
+  }).join("; ");
   const token = randomBytes(32).toString("hex");
   const clients = new Set();
   let origin;
@@ -63,6 +70,14 @@ export async function startServer(session, { markedPath } = {}) {
         const cookies = (request.headers.cookie ?? "").split(";").map((item) => item.trim());
         const cookie = cookies.find((item) => item.startsWith(`${cookieName}=`))?.slice(cookieName.length + 1);
         if (!isSameToken(cookie, token)) return sendJSON(response, 401, { error: "Open the full link shown in the terminal" });
+        if (pathname === "/api/plugins" && agentDir) {
+          if (request.method === "GET") return sendJSON(response, 200, { plugins: PLUGINS, ...await readPluginSettings(agentDir) });
+          if (request.method === "POST") {
+            await savePluginSettings(agentDir, await readJSON(request, 8192));
+            return sendJSON(response, 200, { ok: true });
+          }
+        }
+        if (!session) return sendJSON(response, 404, { error: "Unknown endpoint" });
         if (pathname === "/api/events" && request.method === "GET") {
           response.writeHead(200, { "Content-Type": "text/event-stream", "Connection": "keep-alive", "X-Accel-Buffering": "no" });
           const updates = [];
@@ -101,8 +116,14 @@ export async function startServer(session, { markedPath } = {}) {
         }
         return sendJSON(response, 404, { error: "Unknown endpoint" });
       }
+      if (pluginPage && request.method === "GET" && (pathname === "/plugins" || (!session && pathname === "/"))) {
+        response.setHeader("Content-Security-Policy", `default-src 'none'; ${pluginPolicy}; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'`);
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        response.end(pluginPage);
+        return;
+      }
       const asset = assets.get(pathname);
-      if (request.method !== "GET" || !asset?.[0]) {
+      if (!session || request.method !== "GET" || !asset?.[0]) {
         response.writeHead(404); response.end(); return;
       }
       const body = await readFile(asset[0]);
@@ -135,7 +156,7 @@ export async function startServer(session, { markedPath } = {}) {
       break;
     } catch (error) { if (error.code !== "EADDRINUSE" || attempt === 19) throw error; }
   }
-  session.on("update", broadcast);
+  session?.on("update", broadcast);
   const heartbeat = setInterval(() => {
     for (const client of clients) client.write(": heartbeat\n\n");
   }, HEARTBEAT_MS);
@@ -143,7 +164,7 @@ export async function startServer(session, { markedPath } = {}) {
     url: `${origin}/#${token}`,
     async close() {
       clearInterval(heartbeat);
-      session.off("update", broadcast);
+      session?.off("update", broadcast);
       for (const client of clients) client.end();
       clients.clear();
       await new Promise((resolve) => { server.close(resolve); server.closeAllConnections(); });

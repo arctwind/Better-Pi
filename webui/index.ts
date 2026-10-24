@@ -24,10 +24,4 @@ export default function webui(pi: ExtensionAPI) {
     const title = autoSessionTitle(event.text);
     if (title) pi.setSessionName(title);
   });
-  pi.registerCommand("webui-reload", {
-    description: "Reload Pi resources",
-    handler: async (_args, ctx) => {
-      await ctx.reload();
-    },
-  });
 }

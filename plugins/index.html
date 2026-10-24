@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Better Pi plugins</title>
+<style>
+  :root { color-scheme: light dark; font: 14px/1.45 system-ui, sans-serif; }
+  body { max-width: 620px; margin: 24px auto; padding: 0 16px; }
+  h1 { font-size: 18px; margin: 0 0 12px; }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  label { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent); cursor: pointer; }
+  input { margin: 0; flex-shrink: 0; }
+  strong { font-weight: 600; }
+  small { margin-left: 4px; opacity: .7; font-size: 12px; }
+  p { font-size: 12px; opacity: .75; }
+  footer { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  button { padding: 4px 16px; font: inherit; cursor: pointer; }
+  output { font-size: 12px; }
+  [data-error] { color: light-dark(#a31515, #ff9999); }
+</style>
+<h1>Better Pi plugins</h1>
+<form id="settings">
+  <fieldset id="plugins" disabled></fieldset>
+  <p>Toggling some plugins may reduce cache hit rates by about 1%~10% when continuing older sessions, or have no effect. Changing system-prompt may have a larger impact; actual results vary.</p>
+  <footer><button id="save" disabled>Save</button><output id="status" role="status" aria-live="polite"></output></footer>
+</form>
+<script>
+  const form = document.getElementById("settings");
+  const plugins = document.getElementById("plugins");
+  const save = document.getElementById("save");
+  const status = document.getElementById("status");
+  let saved;
+  let isSaving = false;
+
+  function settings() {
+    return { disabled: [...plugins.querySelectorAll("input")].filter((input) => !input.checked).map((input) => input.value) };
+  }
+
+  function showStatus(message, isError = false) {
+    status.textContent = message;
+    status.toggleAttribute("data-error", isError);
+  }
+
+  async function request(path, input) {
+    const response = await fetch(path, input === undefined ? {} : {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    return result;
+  }
+
+  function updateDirty() {
+    const isDirty = JSON.stringify(settings()) !== saved;
+    save.disabled = !isDirty;
+    showStatus(isDirty ? "Unsaved changes." : "");
+  }
+
+  plugins.addEventListener("change", updateDirty);
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (isSaving || save.disabled) return;
+    isSaving = true;
+    plugins.disabled = save.disabled = true;
+    const input = settings();
+    try {
+      await request("/api/plugins", input);
+      saved = JSON.stringify(input);
+      showStatus("Saved. Changes take effect next time Pi starts or after /reload.");
+    } catch (error) {
+      save.disabled = false;
+      showStatus(error.message, true);
+    } finally {
+      plugins.disabled = false;
+      isSaving = false;
+    }
+  });
+
+  async function load() {
+    try {
+      const token = location.hash.slice(1);
+      if (token) {
+        await request("/api/auth", { token });
+        history.replaceState(null, "", location.pathname);
+      }
+      const result = await request("/api/plugins");
+      for (const plugin of result.plugins) {
+        const label = document.createElement("label");
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.value = plugin.path;
+        input.checked = !result.disabled.includes(plugin.path);
+        const text = document.createElement("span");
+        const name = document.createElement("strong");
+        name.textContent = plugin.name;
+        const description = document.createElement("small");
+        description.textContent = plugin.description;
+        text.append(name, " ", description);
+        label.append(input, text);
+        plugins.append(label);
+      }
+      saved = JSON.stringify(settings());
+      plugins.disabled = false;
+    } catch (error) { showStatus(error.message, true); }
+  }
+  void load();
+</script>
+</html>

@@ -75,3 +75,12 @@ test("healthy modules initialize in order", async () => {
 	assert.deepEqual(calls, ["first", "second"]);
 	assert.equal(pi.handlers.get("session_start").length, 1);
 });
+
+test("disabled modules are skipped before importing", async () => {
+	const calls = [];
+	await loadModules(createPi(), [
+		{ path: "disabled.ts", load() { assert.fail("Disabled module was imported"); } },
+		{ path: "enabled.ts", load: async () => ({ default() { calls.push("enabled"); } }) },
+	], new Set(["disabled.ts"]));
+	assert.deepEqual(calls, ["enabled"]);
+});

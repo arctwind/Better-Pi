@@ -6,8 +6,9 @@ interface Module {
 	load(): Promise<{ default: ExtensionFactory }>;
 }
 
-export async function loadModules(pi: ExtensionAPI, modules: readonly Module[]): Promise<void> {
+export async function loadModules(pi: ExtensionAPI, modules: readonly Module[], disabled: ReadonlySet<string> = new Set()): Promise<void> {
 	for (const { path, load } of modules) {
+		if (disabled.has(path)) continue;
 		let phase = "import failed";
 		try {
 			const module = await load();

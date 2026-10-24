@@ -19,7 +19,7 @@ function hideResult() {
 	return new Text("", 0, 0);
 }
 
-function hideResultImages(): void {
+function hideResultImages(pi: ExtensionAPI): void {
 	const prototype = ToolExecutionComponent.prototype as unknown as ToolDisplay & { [DISPLAY_STATE]?: DisplayState };
 	if (typeof prototype.updateDisplay !== "function") throw new Error("Better Pi requires ToolExecutionComponent.updateDisplay.");
 	const state = prototype[DISPLAY_STATE] ??= {
@@ -30,7 +30,7 @@ function hideResultImages(): void {
 	state.hiddenResults.add(hideResult);
 	if (state.isInstalled) return;
 	if (typeof state.updateDisplay !== "function") throw new Error("Better Pi requires ToolExecutionComponent.updateDisplay.");
-	prototype.updateDisplay = function () {
+	const updateDisplay = function (this: ToolDisplay) {
 		const showImages = this.showImages;
 		if (this.toolDefinition?.renderResult && state.hiddenResults.has(this.toolDefinition.renderResult)) this.showImages = false;
 		try {
@@ -39,11 +39,17 @@ function hideResultImages(): void {
 			this.showImages = showImages;
 		}
 	};
+	prototype.updateDisplay = updateDisplay;
 	state.isInstalled = true;
+	pi.on("session_shutdown", ({ reason }) => {
+		if (reason !== "reload" && reason !== "quit") return;
+		if (prototype.updateDisplay === updateDisplay) prototype.updateDisplay = state.updateDisplay;
+		state.isInstalled = false;
+	});
 }
 
 export function registerCompactTool(pi: ExtensionAPI, tool: ToolDefinition, summary?: (args: Record<string, unknown>) => string): void {
-	hideResultImages();
+	hideResultImages(pi);
 	pi.registerTool({
 		...tool,
 		renderShell: "default",
