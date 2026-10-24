@@ -2,6 +2,8 @@
 
 Better Pi adds tool output formatting, image attachments, browsing, and a local WebUI to Pi.
 
+Some features are deliberately limited. [Design](docs/design.md) explains the thinking behind them.
+
 > Built for **Pi 0.87.1**. Other Pi versions need code fixes; see [Installation](#installation).
 
 Suggestions are welcome as issues. Pull requests are not accepted.
