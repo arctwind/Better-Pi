@@ -42,7 +42,7 @@ WebUI startup requires Pi's managed installation layout. See the [WebUI guide](w
 Fork the repository, adapt it, and install the fork. Your changes and your update timing stay under your control.
 
 ```bash
-pi install git:github.com/<you>/Better-Pi@v0.1.0
+pi install git:github.com/<you>/Better-Pi@v0.2.0
 ```
 
 When upstream changes, ask an AI agent to review the new commits before adding them to your fork.
@@ -50,7 +50,7 @@ When upstream changes, ask an AI agent to review the new commits before adding t
 ### Upstream repository
 
 ```bash
-pi install git:github.com/arctwind/Better-Pi@v0.1.0
+pi install git:github.com/arctwind/Better-Pi@v0.2.0
 ```
 
 On a Pi version other than 0.87.1, fix the code first, then leave `pi update --extensions` alone: it resets the installed copy and drops the fix.
