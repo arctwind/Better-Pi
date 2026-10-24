@@ -4,6 +4,8 @@ Format: `<type>: <description>`
 Use lowercase English types: feat, fix, refactor, perf, docs, style, test, chore, build, ci.
 
 Keep descriptions short and in English. Describe the change, not implementation details.
+Use lowercase for ordinary words, including the first word.
+Preserve official or exact casing for proper nouns, technical names, acronyms, and code identifiers (e.g., GitHub, TypeScript, API, getUser).
 Use imperative mood in descriptions.
 Avoid vague descriptions such as "update", "improve", or "misc".
 Keep descriptions under 50 characters when practical.
