@@ -781,6 +781,7 @@ body:not(.inspector-open) .console-body {
 }
 
 .work > summary .icon {
+  flex: none;
   width: 12px;
   height: 12px;
   color: var(--faint);
@@ -792,6 +793,7 @@ body:not(.inspector-open) .console-body {
 
 .work > summary::after {
   content: "▸";
+  flex: none;
   margin-left: 6px;
   color: var(--faint);
   font-size: var(--fs-2xs);
@@ -807,6 +809,7 @@ body:not(.inspector-open) .console-body {
 }
 
 .work-time {
+  flex: none;
   margin-left: auto;
   color: var(--faint);
   font-size: var(--fs-2xs);
@@ -819,6 +822,7 @@ body:not(.inspector-open) .console-body {
 
 .work-body {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
   padding: 3px 0 5px;
 }
@@ -861,6 +865,7 @@ body:not(.inspector-open) .console-body {
 }
 
 .step {
+  min-width: 0;
   margin: 1px 0;
 }
 
@@ -893,7 +898,10 @@ body:not(.inspector-open) .console-body {
   display: none;
 }
 
+.work-label,
 .step-title {
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   color: var(--soft);
   text-overflow: ellipsis;
@@ -1105,6 +1113,20 @@ body:not(.inspector-open) .console-body {
 
 .change-row:hover {
   background: var(--hover);
+}
+
+.changes-toggle {
+  width: 100%;
+  padding: 4px 9px;
+  border-top: 1px solid var(--line-2);
+  color: var(--dim);
+  font-size: var(--fs-xs);
+  text-align: left;
+}
+
+.changes-toggle:hover {
+  background: var(--hover);
+  color: var(--soft);
 }
 
 .change-row .icon {

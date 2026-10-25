@@ -79,6 +79,42 @@ function setup(initialDrafts = []) {
   return { context, run, receive, setDraft, draft, storage, getElementById, renderControls };
 }
 
+test("turn changes show five files until expanded and retain the choice on rerender", () => {
+  const ui = setup();
+  const group = { key: "turn", messages: Array.from({ length: 7 }, (_, index) => [
+    { role: "assistant", content: [{ type: "toolCall", id: String(index), name: "edit", arguments: { path: `file-${index}.js` } }] },
+    { role: "toolResult", toolCallId: String(index), details: { diff: "- 1 old\n+ 1 new" } },
+  ]).flat() };
+  const rows = (card) => card.children.filter((child) => child.className === "change-row");
+  const visible = (card) => rows(card).filter((row) => !row.hidden);
+  let card = ui.context.renderChangesCard(group);
+  assert.equal(visible(card).length, 5);
+  assert.equal(card.children[0].children[0].textContent, "Changed 7 files in this turn");
+  assert.equal(card.children[0].children[1].children[0].textContent, "+7");
+  const toggle = card.querySelector(".changes-toggle");
+  assert.equal(toggle.textContent, "Show all 7 files");
+  toggle.listeners.get("click")();
+  assert.equal(visible(card).length, 7);
+  assert.equal(toggle.textContent, "Show less");
+  card = ui.context.renderChangesCard(group);
+  assert.equal(visible(card).length, 7);
+  let opened;
+  ui.context.openDiff = (path, diffs) => { opened = { path, diffs: Array.from(diffs) }; };
+  rows(card)[6].listeners.get("click")();
+  assert.deepEqual(opened, { path: "file-6.js", diffs: ["- 1 old\n+ 1 new"] });
+  card.querySelector(".changes-toggle").listeners.get("click")();
+  assert.equal(visible(card).length, 5);
+  assert.equal(visible(ui.context.renderChangesCard(group)).length, 5);
+  const otherTurn = ui.context.renderChangesCard({ ...group, key: "other-turn" });
+  assert.equal(visible(otherTurn).length, 5);
+  for (const count of [1, 5]) {
+    const small = ui.context.renderChangesCard({ key: `small-${count}`, messages: group.messages.slice(0, count * 2) });
+    assert.equal(visible(small).length, count);
+    assert.equal(small.children.some((child) => child.className === "changes-toggle"), false);
+  }
+  assert.equal(ui.context.renderChangesCard({ key: "empty", messages: [] }), undefined);
+});
+
 test("editing a streamed user message uses its current entry id and content", async () => {
   const ui = setup();
   const streamed = { role: "user", timestamp: 1, content: "streamed" };

@@ -4,6 +4,7 @@ const $ = (id) => document.getElementById(id);
 const MAX_IMAGES = 8;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_COMPOSER_HEIGHT = 320;
+const COLLAPSED_CHANGE_LIMIT = 5;
 const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 const THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
 const thinkingNames = { off: "Off", minimal: "Minimal", low: "Low", medium: "Medium", high: "High", xhigh: "Extra high", max: "Max" };
@@ -621,6 +622,8 @@ function renderChangesCard(group) {
   totals.append(element("span", "diff-added", `+${added}`), element("span", "diff-removed", `-${removed}`));
   head.append(totals);
   card.append(head);
+  const key = `${group.key}:changes`;
+  const rows = [];
   for (const file of changes) {
     const row = element("button", "change-row");
     row.type = "button";
@@ -628,7 +631,24 @@ function renderChangesCard(group) {
     row.append(icon("file"), element("span", "change-path", file.path));
     row.append(element("span", "diff-added", `+${file.added}`), element("span", "diff-removed", `-${file.removed}`));
     row.addEventListener("click", () => openDiff(file.path, file.diffs));
+    rows.push(row);
     card.append(row);
+  }
+  if (changes.length > COLLAPSED_CHANGE_LIMIT) {
+    const toggle = element("button", "changes-toggle");
+    toggle.type = "button";
+    const update = () => {
+      const isExpanded = openDetails.get(key) === true;
+      rows.forEach((row, index) => { row.hidden = !isExpanded && index >= COLLAPSED_CHANGE_LIMIT; });
+      toggle.textContent = isExpanded ? "Show less" : `Show all ${changes.length} files`;
+      toggle.setAttribute("aria-expanded", String(isExpanded));
+    };
+    toggle.addEventListener("click", () => {
+      openDetails.set(key, openDetails.get(key) !== true);
+      update();
+    });
+    update();
+    card.append(toggle);
   }
   return card;
 }
