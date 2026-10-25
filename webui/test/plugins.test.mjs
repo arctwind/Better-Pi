@@ -5,6 +5,7 @@ import fs, { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/pr
 import { syncBuiltinESMExports } from "node:module";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { setTimeout as delay } from "node:timers/promises";
 import test from "node:test";
 import { PLUGINS, readPluginSettings, savePluginSettings } from "../../plugins/settings.mjs";
 import { startServer } from "../server.mjs";
@@ -119,4 +120,53 @@ test("chat WebUI serves the same settings page and shares the saved configuratio
   assert.equal(await response.text(), await readFile(new URL("../../plugins/index.html", import.meta.url), "utf8"));
   await savePluginSettings(root, { disabled: ["webui/index.ts"] });
   assert.deepEqual((await (await fetch(`${origin}/api/plugins`, { headers })).json()).disabled, ["webui/index.ts"]);
+});
+
+test("unused standalone settings stop automatically and can be closed again", { timeout: 10_000 }, async (t) => {
+  const root = await temporaryDirectory(t);
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const server = await startServer(undefined, { agentDir: root });
+  t.after(() => server.close());
+  assert.equal(server.closed, false);
+  t.mock.timers.tick(300_000);
+  assert.equal(server.closed, true);
+  await server.close();
+  await assert.rejects(fetch(server.url));
+});
+
+test("standalone settings stay online until the last page disconnects", { timeout: 10_000 }, async (t) => {
+  const root = await temporaryDirectory(t);
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const server = await startServer(undefined, { agentDir: root });
+  t.after(() => server.close());
+  const { origin, headers } = await authenticate(server);
+  assert.equal((await fetch(`${origin}/api/plugins/events`)).status, 401);
+  const first = await fetch(`${origin}/api/plugins/events`, { headers });
+  const second = await fetch(`${origin}/api/plugins/events`, { headers });
+  t.mock.timers.tick(600_000);
+  assert.equal(server.closed, false);
+  await first.body.cancel();
+  await delay(50);
+  t.mock.timers.tick(600_000);
+  assert.equal(server.closed, false);
+  await second.body.cancel();
+  await delay(50);
+  t.mock.timers.tick(299_999);
+  assert.equal(server.closed, false);
+  t.mock.timers.tick(1);
+  assert.equal(server.closed, true);
+});
+
+test("chat WebUI does not stop when its settings page disconnects", { timeout: 10_000 }, async (t) => {
+  const root = await temporaryDirectory(t);
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const server = await startServer(new EventEmitter(), { agentDir: root });
+  t.after(() => server.close());
+  const { origin, headers } = await authenticate(server);
+  const response = await fetch(`${origin}/api/plugins/events`, { headers });
+  await response.body.cancel();
+  await delay(50);
+  t.mock.timers.tick(600_000);
+  assert.equal(server.closed, false);
+  assert.equal((await fetch(`${origin}/plugins`)).status, 200);
 });

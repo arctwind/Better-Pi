@@ -7,6 +7,7 @@ import { PLUGINS, readPluginSettings, savePluginSettings } from "../plugins/sett
 
 const MAX_BODY_BYTES = 112 * 1024 * 1024;
 const HEARTBEAT_MS = 15_000;
+const PLUGIN_IDLE_TIMEOUT_MS = 300_000;
 const MAX_CLIENT_BUFFER_BYTES = 8 * 1024 * 1024;
 const PUBLIC_DIR = fileURLToPath(new URL("./public/", import.meta.url));
 
@@ -42,8 +43,17 @@ export async function startServer(session, { markedPath, agentDir } = {}) {
   }).join("; ");
   const token = randomBytes(32).toString("hex");
   const clients = new Set();
+  const pluginClients = new Set();
   let origin;
   let cookieName;
+  let idleTimer;
+  let closing;
+  const scheduleIdleClose = () => {
+    if (session || closing || pluginClients.size) return;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { void close(); }, PLUGIN_IDLE_TIMEOUT_MS);
+    idleTimer.unref();
+  };
   const assets = new Map([
     ["/", [path.join(PUBLIC_DIR, "index.html"), "text/html"]],
     ["/app.js", [path.join(PUBLIC_DIR, "app.js"), "text/javascript"]],
@@ -70,6 +80,17 @@ export async function startServer(session, { markedPath, agentDir } = {}) {
         const cookies = (request.headers.cookie ?? "").split(";").map((item) => item.trim());
         const cookie = cookies.find((item) => item.startsWith(`${cookieName}=`))?.slice(cookieName.length + 1);
         if (!isSameToken(cookie, token)) return sendJSON(response, 401, { error: "Open the full link shown in the terminal" });
+        if (pathname === "/api/plugins/events" && agentDir && request.method === "GET") {
+          response.writeHead(200, { "Content-Type": "text/event-stream", "Connection": "keep-alive", "X-Accel-Buffering": "no" });
+          response.write(": connected\n\n");
+          pluginClients.add(response);
+          clearTimeout(idleTimer);
+          request.on("close", () => {
+            pluginClients.delete(response);
+            scheduleIdleClose();
+          });
+          return;
+        }
         if (pathname === "/api/plugins" && agentDir) {
           if (request.method === "GET") return sendJSON(response, 200, { plugins: PLUGINS, ...await readPluginSettings(agentDir) });
           if (request.method === "POST") {
@@ -159,15 +180,24 @@ export async function startServer(session, { markedPath, agentDir } = {}) {
   session?.on("update", broadcast);
   const heartbeat = setInterval(() => {
     for (const client of clients) client.write(": heartbeat\n\n");
+    for (const client of pluginClients) client.write(": heartbeat\n\n");
   }, HEARTBEAT_MS);
+  function close() {
+    if (closing) return closing;
+    clearTimeout(idleTimer);
+    clearInterval(heartbeat);
+    session?.off("update", broadcast);
+    for (const client of clients) client.end();
+    clients.clear();
+    for (const client of pluginClients) client.end();
+    pluginClients.clear();
+    closing = new Promise((resolve) => { server.close(resolve); server.closeAllConnections(); });
+    return closing;
+  }
+  scheduleIdleClose();
   return {
     url: `${origin}/#${token}`,
-    async close() {
-      clearInterval(heartbeat);
-      session?.off("update", broadcast);
-      for (const client of clients) client.end();
-      clients.clear();
-      await new Promise((resolve) => { server.close(resolve); server.closeAllConnections(); });
-    },
+    get closed() { return closing !== undefined; },
+    close,
   };
 }

@@ -8,6 +8,7 @@ export default function pluginManager(pi: ExtensionAPI): void {
 		description: "Open Better Pi plugin settings",
 		handler: async (_args, ctx) => {
 			try {
+				if (server && (await server).closed) server = undefined;
 				server ??= startServer(undefined, { agentDir: getAgentDir() }).catch((error) => {
 					server = undefined;
 					throw error;

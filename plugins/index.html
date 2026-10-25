@@ -31,6 +31,12 @@
   const status = document.getElementById("status");
   let saved;
   let isSaving = false;
+  let connection;
+
+  window.addEventListener("pagehide", () => connection?.close());
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted && connection) connection = new EventSource("/api/plugins/events");
+  });
 
   function settings() {
     return { disabled: [...plugins.querySelectorAll("input")].filter((input) => !input.checked).map((input) => input.value) };
@@ -84,6 +90,7 @@
         history.replaceState(null, "", location.pathname);
       }
       const result = await request("/api/plugins");
+      connection = new EventSource("/api/plugins/events");
       for (const plugin of result.plugins) {
         const label = document.createElement("label");
         const input = document.createElement("input");

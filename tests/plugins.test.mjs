@@ -100,3 +100,27 @@ for (const reason of ["new", "resume", "fork", "reload", "quit"]) {
     } finally { await handlers.get("session_shutdown")({ reason: "quit" }); }
   });
 }
+
+test("manager restarts settings after automatic shutdown", { timeout: 10_000 }, async (t) => {
+  const commands = new Map();
+  const handlers = new Map();
+  const links = [];
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  pluginManager({
+    registerCommand(name, command) { commands.set(name, command); },
+    on(name, handler) { handlers.set(name, handler); },
+    async exec() { return { code: 0, stderr: "", killed: false }; },
+  });
+  t.after(() => handlers.get("session_shutdown")({ reason: "quit" }));
+  const ctx = { ui: { notify(message, type) {
+    assert.equal(type, "info", message);
+    links.push(message.match(/http:\/\/\S+/)[0]);
+  } } };
+  await commands.get("plugins").handler("", ctx);
+  t.mock.timers.tick(300_000);
+  await assert.rejects(fetch(links[0]));
+  await commands.get("plugins").handler("", ctx);
+  assert.equal(links.length, 2);
+  assert.notEqual(links[0], links[1]);
+  assert.equal((await fetch(links[1])).status, 200);
+});
