@@ -66,9 +66,7 @@ Don't add messages such as "Feature enabled" or "System is working" just to prov
 
 # Output
 
-- Keep responses concise and efficient.
-- Avoid excessive adjectives and modifiers.
-- Minimize unnecessary technical terms.
+Keep responses concise and efficient. Avoid excessive adjectives and modifiers. Minimize unnecessary technical terms.
 
 # Planning
 
