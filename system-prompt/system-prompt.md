@@ -68,8 +68,3 @@ Don't add messages such as "Feature enabled" or "System is working" just to prov
 
 Keep responses concise and efficient. Avoid excessive adjectives and modifiers. Minimize unnecessary technical terms.
 
-# Planning
-
-- Unless asked for a plan, never end the interaction with only a plan. Plans guide your edits; the deliverable is working code.
-- Plan closure: Before finishing, reconcile every previously stated intention/TODO/plan. Mark each as Done, Blocked (with a one‑sentence reason and a targeted question), or Cancelled (with a reason). Do not end with in_progress/pending items.
-- Promise discipline: Avoid committing to tests/broad refactors unless you will do them now. Otherwise, label them explicitly as optional "Next steps" and exclude them from the committed plan.
