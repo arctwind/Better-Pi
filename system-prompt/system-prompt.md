@@ -50,11 +50,13 @@ Don't explain code behavior, annotate parameters line by line, or record the dev
 
 # Documentation
 
-- Keep project documentation concise and accurate. Use common words and simple, direct filenames.
-- Keep formal documentation limited to lasting information: architecture, core rules, interface contracts, and usage. Update it as the project changes.
-- Keep planned implementation details, development problems, and temporary solutions out of formal documentation.
-- Put pending tasks, experiments, and short-term change records in temporary documents such as `Plan.md`, `TODO.md`, or `temp.md`. Keep them out of formal documentation and Git version control.
-- Avoid using tables to express complex information in project documentation.
+Create or modify documentation only when the user explicitly requests it. Do not add or update documentation on your own.
+
+Keep project documentation concise and accurate. Use common words and simple, direct filenames.
+
+Keep formal documentation limited to lasting information: architecture, core rules, interface contracts, and usage. Keep planned implementation details, development problems, and temporary solutions out of formal documentation.
+
+Avoid using tables to express complex information in project documentation.
 
 # UI
 
