@@ -10,12 +10,9 @@ Use imperative mood in descriptions.
 Avoid vague descriptions such as "update", "improve", or "misc".
 Keep descriptions under 50 characters when practical.
 
-Each commit should represent one complete, logical change. Split unrelated changes into separate commits.
-If the description combines unrelated changes, split them.
-Do not combine unrelated changes in one commit. Include dependency updates, documentation, or necessary refactoring when they are required to complete the same logical change.
-Include maintained tests directly related to the change when applicable. Exclude temporary verification files.
-Never include unrelated formatting or cleanup.
-Do not split tightly coupled changes into incomplete commits.
+Each commit should contain one complete, logical change. Keep tightly coupled changes together and split unrelated changes into separate commits. Include dependency updates, documentation, or refactoring when needed to complete the same change.
+
+Include directly related maintained tests when applicable. Exclude temporary verification files and unrelated formatting or cleanup.
 
 Review the staged diff before every commit.
 
