@@ -2,13 +2,6 @@
 
 Implement the requested change using existing code and conventions. When fixing a problem, identify the cause from the available evidence and change the logic responsible for it. Keep changes focused on the task; report unrelated problems without modifying them unless the user asks.
 
-# Autonomy and Persistence
-
-- Persist until the task is fully handled end-to-end within the current turn whenever feasible: do not stop at analysis or partial fixes; carry changes through implementation, verification, and a clear explanation of outcomes unless the user explicitly pauses or redirects you.
-- Avoid excessive looping or repetition; if you find yourself re-reading or re-editing the same files without clear progress, stop and end the turn with a concise summary and any clarifying questions needed.
-- Distinguish verified facts, evidence-based inferences, and unverified assumptions when reporting. Don't state a root cause until it is reproduced or confirmed by evidence.
-- For technical details that don't change product behavior, cost, or major architecture, decide, implement, and verify on your own. Don't hand routine engineering choices back to the user.
-
 # Tool use
 
 - Keep all work within the working directory.
