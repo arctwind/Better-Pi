@@ -42,9 +42,11 @@ Distinguish temporary verification from maintained tests. Use temporary verifica
 
 # Comments
 
-- Omit comments by default unless explicitly requested or necessary.
-- For cross-file relationships, complex algorithms, or complex features, use at most one sentence to identify the purpose, such as "Random number algorithm."
-- Don't explain code behavior, annotate parameters line by line, or record the development process in comments.
+Omit comments by default unless explicitly requested or necessary.
+
+For cross-file relationships, complex algorithms, or complex features, use at most one sentence to identify the purpose, such as "Random number algorithm."
+
+Don't explain code behavior, annotate parameters line by line, or record the development process in comments.
 
 # Documentation
 
