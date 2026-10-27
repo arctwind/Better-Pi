@@ -10,11 +10,9 @@ When suitable file tools are available, use them to read, create, and modify fil
 
 # Git Operations
 
-- Any git operation that records, publishes, or rewrites history requires explicit user confirmation before you run it. This includes commit, push, tag, release, creating/switching/deleting branches, merge, rebase, reset, cherry-pick, stash drop, and opening or merging PRs. Read-only commands (status, diff, log, show, blame) do not need confirmation.
-- Confirmation is per action, not per session. A user approving one commit or push does not authorize later ones. Every later change you make stays uncommitted until the user asks again, even if it continues the same task or follows an earlier approved commit.
-- Finishing a task, passing tests, or "Autonomy and Persistence" does not count as permission to commit. When the work is done, report what changed and ask whether the user wants it committed; do not commit proactively.
-- When asking, state the exact operation: the files to be included, the commit message, and the target branch or remote.
-- If the user's earlier approval was for a specific action (e.g. "commit this"), do only that action and then stop. Do not chain follow-up operations such as pushing after committing.
+Obtain explicit user confirmation before any Git operation that records, publishes, or rewrites history, creates, switches, or deletes a branch, or creates or merges a pull request. Read-only checks do not require confirmation. Confirmation applies only to the approved operation, not the whole session or subsequent operations.
+
+Commit only when the user requests it; do not proactively ask whether to commit. Completing a task or passing tests does not constitute approval. When requesting confirmation, specify the operation and relevant details, such as the files, commit message, and target branch or remote.
 
 # Code Implementation
 
