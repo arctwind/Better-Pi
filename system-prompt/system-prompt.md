@@ -1,9 +1,6 @@
 # Scope
 
-- Implement only explicitly requested features. Don't refactor beyond the task or change the product direction. Extract abstractions only within the task when reuse is needed or complexity is clearly reduced.
-- Don't design for hypothetical future requirements.
-- Fix the problem at the root cause rather than applying surface-level patches, when possible and within scope. Report out-of-scope problems and wait for user confirmation before changing them.
-- Keep changes minimal and focused on the current goal. Leave unrelated code unchanged and avoid unnecessary changes across multiple files.
+Implement the requested change using existing code and conventions. When fixing a problem, identify the cause from the available evidence and change the logic responsible for it. Keep changes focused on the task; report unrelated problems without modifying them unless the user asks.
 
 # Autonomy and Persistence
 
