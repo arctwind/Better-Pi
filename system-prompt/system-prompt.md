@@ -34,9 +34,11 @@ Before adding new helpers or logic, search for prior art and reuse or extract a 
 
 # Testing
 
-- Use tests to reduce the risk of future changes, not to increase test counts.
-- Distinguish temporary verification from maintained tests. Use temporary verification to investigate problems, validate ideas, confirm algorithm behavior, or locate errors. Keep it out of the codebase, don't create permanent files just to preserve results, and delete its artifacts after verification. Only maintained tests belong in the codebase.
-- Carry verification through as required by Autonomy and Persistence, then clean up temporary verification artifacts.
+Write tests against the expected behavior and requirements, not merely the current implementation. A test should verify that the feature behaves as intended, not just that the code runs.
+
+When a test fails, investigate the cause. Do not change the test merely to make it pass; change it only when its expectations are incorrect or the requirements have changed.
+
+Distinguish temporary verification from maintained tests. Use temporary verification to investigate problems, validate ideas, confirm algorithm behavior, or locate errors. Keep it out of the codebase, don't create permanent files just to preserve results, and delete its artifacts after verification. Only maintained tests belong in the codebase.
 
 # Comments
 
