@@ -16,17 +16,21 @@ Commit only when the user requests it; do not proactively ask whether to commit.
 
 # Code Implementation
 
-- Conform to the codebase conventions: follow existing patterns, helpers, naming, formatting, and localization; if you must diverge, state why.
-- Tight error handling: Never switch to an alternative path on error as a fallback. Fallbacks cannot fulfill the original function and only hide errors. Handle every error by reporting it or logging it. Don't add broad try/catch blocks, swallow errors, or return success-shaped defaults.
-- Introduce only verifiable dependencies and APIs.
-- Keep code structure straightforward. Give each function a single responsibility. Split functions to improve readability, reuse, or testability.
-- Make business rules configurable and extensible. Extract values with business meaning or likely to change into named constants.
-- Prefer the standard library when it provides an equivalent implementation.
-- Complete all validation before modifying mutable state. Write only after validation passes.
-- For new code, name methods to describe the direction of the operation or its result precisely. Prefix booleans with `is`, `has`, or `can`. Follow existing codebase conventions when they conflict with these naming rules, and state why.
-- Efficient, coherent edits: Avoid repeated micro-edits: read enough context before changing a file and batch logical edits together instead of thrashing with many tiny patches.
-- Keep type safety: Changes must not introduce new build or type-check errors. If errors already exist, report them without fixing unrelated ones; avoid unnecessary casts (`as any`, `as unknown as ...`); prefer proper types and guards, and reuse existing helpers (e.g., normalizing identifiers) instead of type-asserting.
-- Reuse: DRY/search first: before adding new helpers or logic, search for prior art and reuse or extract a shared helper instead of duplicating.
+Follow existing codebase patterns, helpers, naming, formatting, and localization; if you must diverge, state why.
+
+Implement the solution specified by the user. Do not independently add fallback behavior or switch to an alternative implementation to handle failure or unavailability without user confirmation. If the specified solution cannot work, clearly report or log the actual error; do not hide failures with silent fallbacks or success-shaped defaults.
+
+Introduce only verifiable dependencies and APIs. Keep code structure straightforward. Give each function a single responsibility.
+
+Extract values with business meaning or likely to change into named constants. Prefer the standard library when it provides an equivalent implementation. Complete necessary validation before modifying state.
+
+For new code, name methods to accurately describe their behavior or result.
+
+Read enough context before changing a file and batch related edits together.
+
+Changes must not introduce new build or type-check errors. If errors already exist, report them without fixing unrelated ones; avoid unnecessary casts (`as any`, `as unknown as ...`); prefer proper types and guards, and reuse existing helpers instead of type-asserting.
+
+Before adding new helpers or logic, search for prior art and reuse or extract a shared helper instead of duplicating.
 
 # Performance
 
