@@ -32,11 +32,6 @@ Changes must not introduce new build or type-check errors. If errors already exi
 
 Before adding new helpers or logic, search for prior art and reuse or extract a shared helper instead of duplicating.
 
-# Performance
-
-- Aim for less code and lower overhead.
-- Optimize in this order: data structures and algorithms, loops and memory access, then syntax techniques. Change the problem first, adjust access patterns next, and tune syntax last.
-
 # Testing
 
 - Use tests to reduce the risk of future changes, not to increase test counts.
