@@ -60,10 +60,9 @@ Avoid using tables to express complex information in project documentation.
 
 # UI
 
-- Show only information end users need in interfaces, pages, and in-app text.
-- Keep technical details, implementation notes, debug status, development records, and requirement discussions out of the UI.
-- Don't add messages such as "Feature enabled" or "System is working" just to prove functionality exists.
-- Don't expose a feature merely because it exists. Add UI elements only for explicit product requirements.
+Show only information end users need in interfaces, pages, and in-app text. Keep technical details, implementation notes, debug status, development records, and requirement discussions out of the UI.
+
+Don't add messages such as "Feature enabled" or "System is working" just to prove functionality exists. Don't expose a feature merely because it exists. Add UI elements only for explicit product requirements.
 
 # Output
 
